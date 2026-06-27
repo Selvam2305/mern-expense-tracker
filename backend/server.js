@@ -8,17 +8,23 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// MongoDB connect
+/* =======================================================
+   MONGODB CONNECTION (FIXED FOR DEPLOYMENT)
+======================================================= */
+// This reads the MONGO_URI from Render's Environment variables.
+// If it's running on your local machine, it falls back to localhost.
+const dbURI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/expense-tracker";
+
 mongoose
-  .connect("mongodb://127.0.0.1:27017/expense-tracker")
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.log(err));
+  .connect(dbURI)
+  .then(() => console.log("🚀 MongoDB successfully connected!"))
+  .catch((err) => console.log("❌ Database connection error:", err));
 
 /* =======================
    TEST ROUTE
 ======================= */
 app.get("/", (req, res) => {
-  res.send("Backend is running");
+  res.send("Backend is running and database is connected!");
 });
 
 /* =======================
@@ -33,6 +39,9 @@ app.get("/api/transactions", async (req, res) => {
   }
 });
 
+/* =======================
+   CREATE TRANSACTION
+======================= */
 app.post("/api/transactions", async (req, res) => {
   try {
     const transaction = new Transaction({
@@ -40,19 +49,18 @@ app.post("/api/transactions", async (req, res) => {
       amount: Number(req.body.amount),
       type: req.body.type,
       category: req.body.category,
-      createdAt: new Date(), // IMPORTANT FIX
+      createdAt: new Date(),
     });
 
     const saved = await transaction.save();
-
     console.log("SAVED:", saved); // DEBUG
-
     res.status(201).json(saved);
   } catch (err) {
     console.log("POST ERROR:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
+
 /* =======================
    DELETE TRANSACTION
 ======================= */
@@ -65,10 +73,11 @@ app.delete("/api/transactions/:id", async (req, res) => {
   }
 });
 
-/* =======================
-  START SERVER
-======================= */
-const PORT = 5000;
+/* =======================================================
+   START SERVER (FIXED PORT FOR DEPLOYMENT)
+======================================================= */
+// Render assigns its own port dynamically. This ensures your app complies.
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
