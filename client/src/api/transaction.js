@@ -1,13 +1,14 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL:  "https://expense-tracker-api-t2g3.onrender.com",
+  baseURL: "https://expense-tracker-api-t2g3.onrender.com",
 });
 
-export const getTransactions = () => API.get("/transactions");
+// Added /api/ to the paths below:
+export const getTransactions = () => API.get("/api/transactions");
 
 export const addTransaction = (data) =>
-  API.post("/transactions", {
+  API.post("/api/transactions", {
     title: data.title,
     amount: Number(data.amount),
     type: data.type,
@@ -15,4 +16,4 @@ export const addTransaction = (data) =>
   });
 
 export const deleteTransaction = (id) =>
-  API.delete(`/transactions/${id}`);
+  API.delete(`/api/transactions/${id}`);
